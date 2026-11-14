@@ -15,7 +15,7 @@ styles can override `--primary-color` and other variables:
 
 ```html
 <link rel="stylesheet" href="/signup-widget.css" />
-<script src="/signup-widget.js" defer></script>
+<script src="/alx-signup.js" defer></script>
 <alx-signup lang="en"></alx-signup>
 ```
 

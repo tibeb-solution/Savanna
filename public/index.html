@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#005a4c">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/css/widget-theme.css">
-    <link rel="stylesheet" href="/signup-widget.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./css/widget-theme.css">
+    <link rel="stylesheet" href="../signup-widget.css">
     <title>Accessible onboarding demo</title>
   </head>
   <body>
@@ -14,13 +14,11 @@
       <h1>Accessible onboarding</h1>
       <p>This partner-site demo keeps registration usable on slow or interrupted connections.</p>
       <alx-signup lang="en"></alx-signup>
-      <alx-profile></alx-profile>
     </main>
-    <script src="/js/offline-store.js"></script>
-    <script src="/js/signup-widget.js"></script>
-    <script src="/js/profile-widget.js"></script>
+    <script src="./js/offline-store.js"></script>
+    <script src="./js/signup-widget.js"></script>
     <script>
-      if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
     </script>
   </body>
 </html>

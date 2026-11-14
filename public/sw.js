@@ -1,7 +1,7 @@
 const CACHE_NAME = 'alx-accessibility-v1';
 const APP_SHELL = [
   '/',
-  '/signup-widget.js',
+  '/alx-signup.js',
   '/js/signup-widget.js',
   '/js/profile-widget.js',
   '/js/offline-store.js',
