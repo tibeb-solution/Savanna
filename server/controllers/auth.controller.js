@@ -37,38 +37,4 @@ async function register(request, response, next) {
   }
 }
 
-async function login(request, response, next) {
-  try {
-    const email = clean(request.body.email, 254).toLowerCase();
-    const password = typeof request.body.password === 'string' ? request.body.password : '';
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 8 || password.length > 200) {
-      response.status(401).json({ error: 'Email or password is incorrect.' });
-      return;
-    }
-
-    const user = await prisma.user.findUnique({ where: { email } });
-    const validPassword = user ? await bcrypt.compare(password, user.passwordHash) : false;
-    if (!validPassword) {
-      response.status(401).json({ error: 'Email or password is incorrect.' });
-      return;
-    }
-
-    const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-    response.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        alternativeIdType: user.alternativeIdType,
-        idReference: user.idReference
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-module.exports = { register, login };
+module.exports = { register };

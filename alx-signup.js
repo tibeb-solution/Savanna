@@ -49,7 +49,6 @@
       invalidPhone: 'Enter a valid phone number.',
       invalidId: 'Enter a valid identity or reference number.',
       invalidPassword: 'Password must be at least 8 characters.',
-      invalidCredentials: 'Email or password is incorrect.',
       networkError: 'The service is unavailable. Your progress is still saved on this device.',
       signupSuccess: 'Your account details were saved successfully.',
       loginSuccess: 'You are signed in successfully.',
@@ -104,7 +103,6 @@
       invalidPhone: 'ትክክለኛ የስልክ ቁጥር ያስገቡ።',
       invalidId: 'ትክክለኛ የመታወቂያ ቁጥር ያስገቡ።',
       invalidPassword: 'የይለፍ ቃሉ ቢያንስ 8 ቁምፊዎች ይኑሩት።',
-      invalidCredentials: 'ኢሜይል ወይም የይለፍ ቃል ትክክል አይደለም።',
       networkError: 'አገልግሎቱ አልተገኘም። ሂደትዎ በዚህ መሣሪያ ላይ ተቀምጧል።',
       signupSuccess: 'የመለያ መረጃዎ ተቀምጧል።',
       loginSuccess: 'በተሳካ ሁኔታ ገብተዋል።',
@@ -124,15 +122,9 @@
       this.mode = this.getAttribute('mode') === 'login'
         || (!this.hasAttribute('mode') && requestedMode === 'login') ? 'login' : 'signup';
       this.instanceId = `alx-onboard-${instanceCount += 1}`;
-      this.steps = this.mode === 'login'
-        ? ['email', 'password']
-        : ['fullName', 'email', 'phone', 'idType', 'idNumber', 'password'];
+      this.steps = ['email', 'password'];
       this.formData = {
-        fullName: '',
         email: '',
-        phone: '',
-        idType: 'kebele_id',
-        idNumber: '',
         password: ''
       };
       this.currentStep = 0;
@@ -218,23 +210,7 @@
           <p>${this.mode === 'login' ? this.text('loginIntro') : this.text('signupIntro')}</p>
           <p class="alx-signup__step-count" aria-live="polite"></p>
           <div id="error-summary" class="alx-signup__summary" role="alert" tabindex="-1" hidden></div>
-          ${this.mode === 'signup' ? this.renderField('fullName', 'text', 'name', 'fullNameHint') : ''}
           ${this.renderField('email', 'email', 'username', 'emailHint')}
-          ${this.mode === 'signup' ? this.renderField('phone', 'tel', 'tel', 'phoneHint') : ''}
-          ${this.mode === 'signup' ? `
-            <div class="alx-signup__step" data-step="idType" hidden>
-              <div class="alx-signup__field">
-                <label for="${id('idType')}">${this.text('idType')}</label>
-                <select id="${id('idType')}" name="idType" autocomplete="off" aria-describedby="${id('idType')}-hint">
-                  <option value="kebele_id">${this.text('kebele')}</option>
-                  <option value="refugee_registration">${this.text('refugee')}</option>
-                  <option value="no_standard_id">${this.text('noStandardId')}</option>
-                </select>
-                <span class="alx-signup__hint" id="${id('idType')}-hint">${this.text('idTypeHint')}</span>
-                <div class="alx-signup__error" id="${id('idType')}-error" aria-live="polite"></div>
-              </div>
-            </div>` : ''}
-          ${this.mode === 'signup' ? this.renderField('idNumber', 'text', 'off', 'idNumberHint') : ''}
           ${this.renderField('password', 'password', this.mode === 'login' ? 'current-password' : 'new-password', 'passwordHint')}
           <div class="alx-signup__actions">
             <button type="button" data-action="back">${this.text('back')}</button>
@@ -269,14 +245,6 @@
         this.clearFieldError(event.target.name);
         this.saveProgress();
       });
-      if (this.mode === 'signup') {
-        form.elements.idType.addEventListener('change', (event) => {
-          this.formData.idType = event.target.value;
-          this.updateIdNumberHint();
-          this.clearFieldError('idNumber');
-          this.saveProgress();
-        });
-      }
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         this.finish();
@@ -326,7 +294,6 @@
           const field = this.querySelector(`[name="${name}"]`);
           if (field) field.value = draft[name];
         });
-        if (this.mode === 'signup') this.updateIdNumberHint();
       } catch (error) {
         console.warn('Unable to restore onboarding progress.', error);
       }
@@ -342,11 +309,6 @@
       } catch (error) {
         console.warn('Unable to save onboarding progress.', error);
       }
-    }
-
-    updateIdNumberHint() {
-      const hint = this.querySelector(`#${this.fieldId('idNumber')}-hint`);
-      if (hint) hint.textContent = this.text('idNumberHints')[this.formData.idType];
     }
 
     showStep() {
@@ -375,15 +337,6 @@
       let error = '';
       if (!value) error = this.text('required');
       if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = this.text('invalidEmail');
-      if (name === 'phone' && !/^[+]?[0-9 ()-]{7,20}$/.test(value)) error = this.text('invalidPhone');
-      if (name === 'idNumber') {
-        const rules = {
-          kebele_id: /^[a-z0-9]{4,20}$/i,
-          refugee_registration: /^[a-z0-9]{5,30}$/i,
-          no_standard_id: /^.{3,100}$/
-        };
-        if (!rules[this.formData.idType].test(value)) error = this.text('invalidId');
-      }
       if (name === 'password' && value.length < 8) error = this.text('invalidPassword');
       this.clearFieldError(name);
       if (!error) {
@@ -409,19 +362,8 @@
         if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           errors.email = this.text('invalidEmail');
         }
-        if (name === 'phone' && !/^[+]?[0-9 ()-]{7,20}$/.test(value)) {
-          errors.phone = this.text('invalidPhone');
-        }
         if (name === 'password' && value.length < 8) {
           errors.password = this.text('invalidPassword');
-        }
-        if (name === 'idNumber') {
-          const rules = {
-            kebele_id: /^[a-z0-9]{4,20}$/i,
-            refugee_registration: /^[a-z0-9]{5,30}$/i,
-            no_standard_id: /^.{3,100}$/
-          };
-          if (!rules[this.formData.idType].test(value)) errors.idNumber = this.text('invalidId');
         }
       });
       return errors;
@@ -457,76 +399,19 @@
         return;
       }
       const key = this.mode === 'login' ? LOGIN_DRAFT_KEY : SIGNUP_DRAFT_KEY;
-      if (this.mode === 'signup') {
-        this.submitRegistration(key);
-        return;
-      }
-      this.submitLogin(key);
-    }
-
-    async submitRegistration(key) {
-      const status = this.querySelector('.alx-signup__status');
       try {
-        const payload = {
-          name: this.formData.fullName,
-          email: this.formData.email,
-          phone: this.formData.phone,
-          alternativeIdType: this.formData.idType,
-          idReference: this.formData.idNumber,
-          password: this.formData.password
-        };
-        const response = await fetch('/api/v1/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        if (!response.ok) {
-          this.showErrors({ email: result.error || this.text('networkError') });
-          return;
-        }
         localStorage.removeItem(key);
-        if (result.token) localStorage.setItem('alx_auth_token', result.token);
-        status.textContent = this.text('signupSuccess');
-        window.dispatchEvent(new CustomEvent('alx-auth-success', { detail: result.user }));
-        this.dispatchEvent(new CustomEvent('signup-success', {
-          detail: this.formData,
-          bubbles: true
-        }));
       } catch (error) {
-        status.textContent = this.text('networkError');
-        this.showErrors({ email: this.text('networkError') });
-        console.warn('Registration request failed.', error);
+        console.warn('Unable to clear onboarding progress.', error);
       }
-    }
-
-    async submitLogin(key) {
-      const status = this.querySelector('.alx-signup__status');
-      try {
-        const response = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: this.formData.email,
-            password: this.formData.password
-          })
-        });
-        const result = await response.json();
-        if (!response.ok) {
-          this.showErrors({ email: result.error || this.text('invalidCredentials') });
-          return;
-        }
-        localStorage.removeItem(key);
-        if (result.token) localStorage.setItem('alx_auth_token', result.token);
-        status.textContent = this.text('loginSuccess');
-        const detail = { ...result.user };
-        this.dispatchEvent(new CustomEvent('login-success', { detail, bubbles: true }));
-        window.dispatchEvent(new CustomEvent('alx-auth-success', { detail }));
-      } catch (error) {
-        status.textContent = this.text('networkError');
-        this.showErrors({ email: this.text('networkError') });
-        console.warn('Login request failed.', error);
-      }
+      const detail = { ...this.formData };
+      delete detail.password;
+      this.querySelector('.alx-signup__status').textContent =
+        this.mode === 'login' ? this.text('loginSuccess') : this.text('signupSuccess');
+      this.dispatchEvent(new CustomEvent(this.mode === 'login' ? 'login-success' : 'signup-success', {
+        detail,
+        bubbles: true
+      }));
     }
 
     showErrors(errors) {
